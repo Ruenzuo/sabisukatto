@@ -37,10 +37,4 @@ public class Setting {
         this.value = value;
     }
 
-    public static List<Setting> getSettings(Context context) {
-        ArrayList<Setting> settings = new ArrayList<>();
-        settings.add(new Setting(context.getString(R.string.twitter_account), null));
-        return settings;
-    }
-
 }

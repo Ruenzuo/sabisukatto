@@ -25,6 +25,10 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
         this.dataSet = dataSet;
     }
 
+    public void setDataSet(List<Setting> dataSet) {
+        this.dataSet = dataSet;
+    }
+
     @Override
     public SettingsAdapter.SettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.view_setting, parent, false);
@@ -38,6 +42,8 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
         viewHolder.textViewTitle.setText(setting.getTitle());
         if (setting.getValue() != null) {
             viewHolder.textViewValue.setText(setting.getValue());
+        } else {
+            viewHolder.textViewValue.setText("");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ruenzuo.sabisukatto;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, getFragment(item.getItemId())).commit();
+                .replace(R.id.content, getFragment(item.getItemId()), SettingsFragment.class.getName()).commit();
         return true;
     }
 
@@ -45,6 +46,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.navigation_media: return MediaFragment.newInstance();
             case R.id.navigation_settings: return SettingsFragment.newInstance();
             default: return null;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(SettingsFragment.class.getName());
+        if (fragment != null) {
+            fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 
