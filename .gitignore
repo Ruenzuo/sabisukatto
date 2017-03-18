@@ -1,5 +1,10 @@
 # Created by https://www.gitignore.io/api/android,gradle,intellij,osx
 
+# Sensitive information
+
+app/src/main/res/values/keys.xml
+app/src/main/java/com/ruenzuo/sabisukatto/TwitterCredentials.java
+
 ### Android ###
 # Built application files
 *.apk
