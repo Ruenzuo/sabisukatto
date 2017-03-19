@@ -14,6 +14,7 @@ import com.twitter.sdk.android.core.models.MediaEntity;
 import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -44,9 +45,11 @@ import static android.os.Environment.DIRECTORY_MOVIES;
 public class MediaDownloader {
 
     private Context context;
+    private MediaProcessor processor;
 
     public MediaDownloader(Context context) {
         this.context = context;
+        this.processor = new MediaProcessor(context);
     }
 
     public Completable downloadMedia(Uri uri) {
@@ -64,6 +67,16 @@ public class MediaDownloader {
             @Override
             public SingleSource<File> apply(@NonNull Pair<String, InputStream> pair) throws Exception {
                 return saveFile(pair).subscribeOn(Schedulers.io());
+            }
+        }).flatMap(new Function<File, SingleSource<Pair<String, ByteArrayOutputStream>>>() {
+            @Override
+            public SingleSource<Pair<String, ByteArrayOutputStream>> apply(@NonNull File file) throws Exception {
+                return processor.processMedia(file).subscribeOn(Schedulers.io());
+            }
+        }).flatMap(new Function<Pair<String, ByteArrayOutputStream>, SingleSource<File>>() {
+            @Override
+            public SingleSource<File> apply(@NonNull Pair<String, ByteArrayOutputStream> pair) throws Exception {
+                return processor.saveFile(pair).subscribeOn(Schedulers.io());
             }
         }));
     }
