@@ -24,6 +24,10 @@ import com.ruenzuo.sabisukatto.sabisukattokit.MediaDownloader;
 import com.ruenzuo.sabisukatto.settings.SettingsFragment;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -51,6 +55,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, getFragment(navigation.getMenu().getItem(0).getItemId())).commit();
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                String tweet = intent.getStringExtra(Intent.EXTRA_TEXT);
+                Pattern pattern = Pattern.compile("https(.*)");
+                Matcher matcher = pattern.matcher(tweet);
+                if (matcher.find()) {
+                    String url = matcher.group(1);
+                    downloadGIF(url);
+                }
+            }
+        }
     }
 
     @Override
@@ -115,6 +134,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             //TODO: Implement
             return;
         }
+        downloadGIF(item.getText().toString());
+    }
+
+    private void downloadGIF(String url) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         builder.setContentTitle(getString(R.string.gif_download))
                 .setContentText(getString(R.string.download_progress))
@@ -122,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         builder.setProgress(0, 0, true);
         notificationManager.notify(R.id.gif_download_notification, builder.build());
         MediaDownloader mediaDownloader = new MediaDownloader(this);
-        Uri clipboardUri = Uri.parse(item.getText().toString());
+        Uri clipboardUri = Uri.parse(url);
         disposables.add(mediaDownloader.downloadMedia(clipboardUri)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
