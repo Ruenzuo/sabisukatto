@@ -11,7 +11,6 @@ import android.util.Pair;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
@@ -44,21 +43,34 @@ public class MediaProcessor {
                 MediaPlayer player = MediaPlayer.create(context, fileUri);
                 int fps = 24;
                 int length = player.getDuration();
-                float lengthInSeconds = length / 1000;
+                double lengthInSeconds = (double)length / 1000.0;
                 Log.v(TAG, String.format("Video length (value): %.3f seconds", lengthInSeconds));
                 int requiredFrames = (int) (fps * lengthInSeconds);
                 Log.v(TAG, String.format("Required frames: %d frames", requiredFrames));
-                int step = length / requiredFrames;
-                Log.v(TAG, String.format("Step: %d milliseconds", step));
+                double stepInUSeconds = length * 1000.0 / requiredFrames;
+                Log.v(TAG, String.format("Step: %.3f microseconds", stepInUSeconds));
                 int currentTime = 0;
                 for (int i = 0; i < requiredFrames; i++) {
-                    Bitmap bitmap = retriever.getFrameAtTime(currentTime);
-                    frames.add(bitmap);
-                    currentTime += step;
+                    Bitmap bitmap = retriever.getFrameAtTime(currentTime, MediaMetadataRetriever.OPTION_CLOSEST);
+                    if (bitmap != null) {
+                        frames.add(bitmap);
+                    }
+                    currentTime += stepInUSeconds;
                 }
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(4096);
-                //TODO: implement GIF encoding
-                return new Pair<String, ByteArrayOutputStream>(fileUri.getLastPathSegment().replace(".mp4", ""), outputStream);
+                GIFEncoder encoder = new GIFEncoder();
+                encoder.setRepeat(0);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                if (!encoder.start(outputStream)) {
+                    throw new Exception();
+                }
+                for (Bitmap bitmap : frames) {
+                    if (!encoder.addFrame(bitmap)) {
+                        throw new Exception();
+                    }
+                    encoder.setDelay((int) (stepInUSeconds / 1000));
+                }
+                encoder.finish();
+                return new Pair<String, ByteArrayOutputStream>(fileUri.getLastPathSegment().replace(".mp4", ".gif"), outputStream);
             }
         });
     }
