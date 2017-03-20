@@ -1,13 +1,16 @@
 package com.ruenzuo.sabisukatto.sabisukattokit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
+import com.ruenzuo.sabisukatto.R;
 import com.ruenzuo.sabisukatto.sabisukattokit.gif.Encoder;
 
 import java.io.ByteArrayOutputStream;
@@ -83,11 +86,18 @@ public class MediaProcessor {
         return Single.fromCallable(new Callable<File>() {
             @Override
             public File call() throws Exception {
-                File externalDirectory = context.getExternalFilesDir(DIRECTORY_PICTURES);
-                File file = new File(externalDirectory + File.separator + pair.first);
+                File externalDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                File directory = new File(externalDirectory + File.separator + context.getString(R.string.app_name));
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                File file = new File(directory, pair.first);
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 fileOutputStream.write(pair.second.toByteArray());
                 fileOutputStream.close();
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                intent.setData(Uri.fromFile(file));
+                context.sendBroadcast(intent);
                 return file;
             }
         });
