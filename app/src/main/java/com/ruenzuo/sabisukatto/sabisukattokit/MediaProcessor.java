@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.Pair;
 
+import com.ruenzuo.sabisukatto.sabisukattokit.gif.Encoder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,6 +44,7 @@ public class MediaProcessor {
                 ArrayList<Bitmap> frames = new ArrayList<>();
                 MediaPlayer player = MediaPlayer.create(context, fileUri);
                 int fps = 24;
+                int quality = 5;
                 int length = player.getDuration();
                 double lengthInSeconds = (double)length / 1000.0;
                 Log.v(TAG, String.format("Video length (value): %.3f seconds", lengthInSeconds));
@@ -57,8 +60,9 @@ public class MediaProcessor {
                     }
                     currentTime += stepInUSeconds;
                 }
-                GIFEncoder encoder = new GIFEncoder();
+                Encoder encoder = new Encoder();
                 encoder.setRepeat(0);
+                encoder.setQuality(quality);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 if (!encoder.start(outputStream)) {
                     throw new Exception();

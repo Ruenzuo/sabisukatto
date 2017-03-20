@@ -1,4 +1,4 @@
-package com.ruenzuo.sabisukatto.sabisukattokit;
+package com.ruenzuo.sabisukatto.sabisukattokit.gif;
 
 import java.io.IOException;
 import java.io.OutputStream;

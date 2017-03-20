@@ -1,4 +1,4 @@
-package com.ruenzuo.sabisukatto.sabisukattokit;
+package com.ruenzuo.sabisukatto.sabisukattokit.gif;
 
 
 import android.graphics.Bitmap;
@@ -35,7 +35,7 @@ import java.io.OutputStream;
  *
  */
 
-public class GIFEncoder {
+public class Encoder {
     private static final String TAG = "AnimatedGifEncoder";
 
     // The minimum % of an images pixels that must be transparent for us to set a transparent index
